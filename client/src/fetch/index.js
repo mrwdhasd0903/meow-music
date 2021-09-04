@@ -1,12 +1,13 @@
 const defaultConfig = {
   baseUrl: "http://localhost:7777/",
   timeout: 12000,
+  responseType: 'json',
   headers: {
     "Content-Type": "application/json; charset=utf-8"
   }
 }
 const promiseWithOptions = function (options, interceptor) {
-  const { headers, timeout, url, query, method, data } = options
+  let { headers, responseType, timeout, url, query, method, data, controller } = options
   // 组装 query
   let queryString = ""
   if (query && typeof query === "object") {
@@ -20,7 +21,9 @@ const promiseWithOptions = function (options, interceptor) {
     }
   }
   // 用于超时结束请求
-  const controller = new AbortController();
+  if (!controller) {
+    controller = new AbortController();
+  }
   const { signal } = controller;
   // 超时promise
   const timeoutPromise = () => new Promise((resolve, reject) => {
@@ -35,12 +38,17 @@ const promiseWithOptions = function (options, interceptor) {
       method,
       data,
       headers: new Headers(headers),
+      responseType,
       signal
     }).then(res => {
-      res.json().then(data => {
-        res.data = data
+      if (responseType === 'json') {
+        res.json().then(data => {
+          res.data = data
+          resolve(res)
+        })
+      } else {
         resolve(res)
-      })
+      }
     }, err => reject(err))
   })
   // race
@@ -54,6 +62,7 @@ const promiseWithOptions = function (options, interceptor) {
 const optionsWithConfig = function (options, config) {
   options.headers = { ...config.headers, ...options.headers }
   options.timeout = options.timeout || config.timeout;
+  options.responseType = options.responseType || config.responseType;
   return options
 }
 

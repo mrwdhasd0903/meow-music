@@ -2,4 +2,12 @@ import req from "@/fetch"
 
 export const getDir = () => req.get("getDir")
 
-export const getFile = (path) => req.get("getFile", { path })
+export const getFile = (path, controller) => req.get("getFile", { path }, { responseType: 'blob', controller }).then(res => {
+  return res.blob();
+}).then(blob => {
+  return new Promise((resolve, reject) => {
+    resolve(window.URL.createObjectURL(blob))
+  })
+}).catch(err => {
+  console.log("中断了请求");
+})

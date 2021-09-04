@@ -20,7 +20,9 @@ module.exports = {
               response.end('404');
             } else {
               response.setHeader('Content-Type', 'audio/' + extname);
-              response.end(data);
+              setTimeout(() => {
+                response.end(data);
+              }, 2000)
             }
           });
         } else {
