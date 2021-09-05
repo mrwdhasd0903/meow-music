@@ -2,9 +2,11 @@
   <div class="trees">
     <div class="tree_item">
       <div class="tree_heder">
-        <Svg name="arrow" :class="{arrow_shrink:display}" @click.stop="shrink(key)" />
+        <Svg name="arrow" :class="{arrow_shrink:display}" @click.stop="shrink()" />
         <div class="name">所有音乐</div>
-        <div class="operation" @click.stop="operation(key)"></div>
+        <div class="operation">
+          <Svg name="add" @click="addDir('')" />
+        </div>
       </div>
       <!-- 
       文件夹: 收起\打开、播放、添加 
@@ -38,18 +40,19 @@ export default defineComponent({
   provide() {
     return {
       getPath: this.emit,
-      add: this.add
+      add: this.add,
+      addDir: this.addDir
     }
   },
   methods: {
-    emit(path, isDir) {
-      this.$emit('pathClick', path, isDir)
-    },
     shrink() {
       this.display = !this.display
     },
     add(path) {
       this.$emit('add', path)
+    },
+    addDir(path) {
+      this.$emit('addDir', path)
     }
   },
   setup(props) {

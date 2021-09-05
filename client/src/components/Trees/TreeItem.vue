@@ -8,7 +8,9 @@
         @click.stop="shrink(key)"
       />
       <div class="name" :title="key" @click="getPath(basePath + '/' + key,value!==true)">{{key}}</div>
-      <div class="operation" v-if="value!==true"></div>
+      <div class="operation" v-if="value!==true">
+        <Svg name="add" @click="addDir(basePath + '/' + key)" />
+      </div>
       <div class="operation" v-else>
         <Svg name="add" @click="add(basePath + '/' + key)" />
       </div>
@@ -36,7 +38,7 @@ export default defineComponent({
       default: ''
     }
   },
-  inject: ['getPath', 'add'],
+  inject: ['getPath', 'add', 'addDir'],
   setup(props) {
     const displays = reactive({ ...props.data })
     for (let key in displays) {

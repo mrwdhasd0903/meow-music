@@ -1,7 +1,7 @@
 <template>
   <div class="player">
-    <Trees :data="state.dirData" @add="addToPalyer"></Trees>
-    <div>
+    <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
+    <div class="player_panel">
       <audio @ended="next" controls="controls" autoplay :key="state.currSrc">
         <source :src="state.currSrc" />
       </audio>
@@ -9,10 +9,8 @@
         <div @click="next">下一首</div>
         <div @click="last">上一首</div>
       </div>
-      <div v-for="(url,index) in state.playList" :key="url">
-        {{url}}
-        <span v-if="index===currPlay">*</span>
-      </div>
+
+      <PlayList @play="playInex" :list="state.playList" :playIndex="currPlay" />
     </div>
   </div>
   <MaskBack />
@@ -23,9 +21,10 @@ import { defineComponent, reactive, ref, computed, watch } from 'vue'
 import { getDir, getFile } from '@/api/muisc'
 import Trees from '@/components/Trees/index.vue'
 import MaskBack from '@/components/MaskBack/index.vue'
+import PlayList from '@/components/PlayList/index.vue'
 export default defineComponent({
   name: 'App',
-  components: { Trees, MaskBack },
+  components: { Trees, MaskBack, PlayList },
   setup() {
     // 状态存储
     const state = reactive({
@@ -70,19 +69,53 @@ export default defineComponent({
         }
       }
     })
+    // 播放单曲
+    function playInex(index) {
+      currPlay.value = index
+    }
     // 添加单曲
     function addToPalyer(path) {
-      // 添加的是当前播放的
-      if (state.playList[currPlay.value] === path) return
+      // 添加的是当前播放的 则不处理
+      const currPlayPath = state.playList[currPlay.value]
+      if (currPlayPath === path) return
       // 去重
       const findIndex = state.playList.findIndex(item => item === path)
       if (findIndex > -1) {
         state.playList.splice(findIndex, 1)
       }
       state.playList.push(path)
+      // 当前索引修正
+      const _currPlay = state.playList.findIndex(item => item === currPlayPath)
+      if (_currPlay !== -1) {
+        currPlay.value = _currPlay
+      }
+
       // 列表为空时自动播放
       if (currPlay.value == -1) {
         currPlay.value = 0
+      }
+    }
+    // 添加整个文件夹
+    function addDirToPlayer(path) {
+      let p = state.dirData
+      const pathArr = path.split('/').filter(path => path)
+      pathArr.forEach(path => {
+        p = p[path]
+      })
+      const pickArr = []
+      deepPick(p, path)
+      pickArr.forEach(path => addToPalyer(path))
+
+      function deepPick(data, path) {
+        if (typeof data === 'object') {
+          for (let name in data) {
+            deepPick(data[name], path + '/' + name)
+          }
+        } else {
+          if (data === true) {
+            pickArr.push(path)
+          }
+        }
       }
     }
     // 下一首
@@ -107,15 +140,17 @@ export default defineComponent({
     return {
       state,
       addToPalyer,
+      addDirToPlayer,
       next,
       last,
-      currPlay
+      currPlay,
+      playInex
     }
   }
 })
 </script>
 
-<style scoped>
+<style scoped lang='scss'>
 .player {
   position: absolute;
   z-index: 3;
@@ -124,5 +159,9 @@ export default defineComponent({
   left: 0;
   top: 0;
   display: flex;
+  .player_panel {
+    width: calc(100% - 300px);
+    padding: 20px 30px;
+  }
 }
 </style>
