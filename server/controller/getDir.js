@@ -1,5 +1,5 @@
 const fs = require('fs');
-const basePath = `E:/ljj/`;
+const { musicBasePath } = require("../config")
 const MIN_SIZE = 1024 * 1024;
 const dirContainer = {};
 
@@ -14,7 +14,7 @@ function recursive(fullPath) {
     /**
      * 处理dirContainer
      */
-    const patchPath = fullPath.replace(basePath, '');
+    const patchPath = fullPath.replace(musicBasePath, '');
     const pathArr = patchPath.split('/');
     pathArr.pop();
     if (isFile) {
@@ -42,7 +42,7 @@ function setDirContainer(pathArr, key, value) {
 }
 module.exports = {
   "/getDir": (requset, response) => {
-    recursive(basePath);
+    recursive(musicBasePath);
     response.sendJSON(dirContainer);
   }
 }

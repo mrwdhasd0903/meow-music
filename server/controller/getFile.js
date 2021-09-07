@@ -1,16 +1,15 @@
 const fs = require('fs');
-const url = require('url');
 const r_path = require('path')
-const basePath = `E:/ljj/`;
+const { musicBasePath } = require("../config")
 module.exports = {
   '/getFile': (requset, response) => {
-    const { query } = url.parse(requset.url, true);
+    const { query } = requset.parseUrl;
     const { path } = query;
     const extname = r_path.extname(path).replace(".", "")
     if (!path) {
       response.end('404');
     } else {
-      const fullPath = basePath + path;
+      const fullPath = musicBasePath + path;
       const exists = fs.existsSync(fullPath);
       if (exists) {
         const stat = fs.lstatSync(fullPath);
