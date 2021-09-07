@@ -2,15 +2,8 @@
   <div class="player">
     <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel">
-      <audio @ended="next" controls="controls" autoplay :key="state.currSrc">
-        <source :src="state.currSrc" />
-      </audio>
-      <div>
-        <div @click="next">下一首</div>
-        <div @click="last">上一首</div>
-      </div>
-
       <PlayList @play="playInex" :list="state.playList" :playIndex="currPlay" />
+      <Player :currSrc="state.currSrc" @next="next" @last="last" />
     </div>
   </div>
   <MaskBack />
@@ -22,9 +15,10 @@ import { getDir, getFile } from '@/api/muisc'
 import Trees from '@/components/Trees/index.vue'
 import MaskBack from '@/components/MaskBack/index.vue'
 import PlayList from '@/components/PlayList/index.vue'
+import Player from '@/components/Player/index.vue'
 export default defineComponent({
   name: 'App',
-  components: { Trees, MaskBack, PlayList },
+  components: { Trees, MaskBack, PlayList, Player },
   setup() {
     // 状态存储
     const state = reactive({
