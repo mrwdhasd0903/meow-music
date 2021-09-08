@@ -155,7 +155,10 @@ export default defineComponent({
   display: flex;
   .player_panel {
     width: calc(100% - 300px);
-    padding: 20px 30px;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 }
 </style>

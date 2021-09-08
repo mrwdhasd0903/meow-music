@@ -1,5 +1,7 @@
 import { readFileSync, readdirSync } from 'fs'
 
+// https://www.iconfont.cn/collections/detail?spm=a313x.7781069.1998910419.d9df05512&cid=27691
+
 let idPerfix = ''
 const svgTitle = /<svg([^>+].*?)>/
 const clearHeightWidth = /(width|height)="([^>+].*?)"/g
