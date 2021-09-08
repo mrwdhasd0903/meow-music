@@ -1,5 +1,5 @@
 const defaultConfig = {
-  baseUrl: "http://localhost:7777/",
+  baseUrl: "/api/",
   timeout: 12000,
   responseType: 'json',
   headers: {
