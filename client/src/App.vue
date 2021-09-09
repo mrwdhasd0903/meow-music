@@ -53,12 +53,10 @@ export default defineComponent({
           getFile(path, controller)
             .then(src => {
               if (!src) return
+              isPending = false
               state.currSrc = src
               // 放在缓存
               state.cacheMap[path] = src
-            })
-            .finally(() => {
-              isPending = false
             })
         }
       }
