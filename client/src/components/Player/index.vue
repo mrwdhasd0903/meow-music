@@ -12,8 +12,8 @@
       ref="audio"
     />
     <div class="progress" ref="progress" @click="progressClick">
-      <div class="pointer" :style="{width:(progress * 100 )+'%'}">
-        <div class="draw"></div>
+      <div class="pointer" :style="{width:progressWidth}">
+        <div class="drag" ref="drag"></div>
       </div>
     </div>
     <div class="controller">
@@ -44,7 +44,10 @@ export default defineComponent({
       // 当前已播放时长
       currDuration: 0,
       // 当前播放状态 0 暂停 1 播放
-      state: 0
+      state: 0,
+
+      // 是否允许进度条点击 - 用于取消进度条拖动时触发click的bug
+      allowProClick: true
     }
   },
   watch: {
@@ -57,19 +60,29 @@ export default defineComponent({
     }
   },
   computed: {
+    // 进度条宽度
+    progressWidth() {
+      return this.progress * 100 + '%'
+    },
+    // 当前进度 0 -1
     progress() {
       if (this.duration === 0 || this.currDuration == 0) return 0
       return this.currDuration / this.duration
     },
     audio() {
       return this.$refs.audio
+    },
+    drag() {
+      return this.$refs.drag
     }
   },
   methods: {
+    // 下一首
     next() {
       this.$emit('next')
       this.audio.pause()
     },
+    // 上一首
     last() {
       this.$emit('last')
       this.audio.pause()
@@ -96,7 +109,13 @@ export default defineComponent({
     },
     // 进度条点击
     progressClick(e) {
-      const pro = e.offsetX / this.$refs.progress.clientWidth
+      if (this.allowProClick) {
+        this.setProWidth(e.offsetX)
+      }
+    },
+    // 设置进度条宽度
+    setProWidth(width) {
+      const pro = width / this.$refs.progress.clientWidth
       const _currDuration = pro * this.duration
       this.audio.currentTime = _currDuration
     },
@@ -109,7 +128,35 @@ export default defineComponent({
       this.state = 0
     }
   },
-  mounted() {}
+  mounted() {
+    this.drag.onmousedown = e => {
+      this.audio.pause()
+      this.allowProClick = false
+      // 总进度长度
+      const progressWidth = this.$refs.progress.clientWidth
+      // 当前进度长度
+      const baseWidth = progressWidth * this.progress
+      document.onmousemove = m_e => {
+        // 调整后的进度长度
+        let offsetX = baseWidth + m_e.pageX - e.pageX
+        // 溢出修正
+        if (offsetX < 0) {
+          offsetX = 0
+        } else if (offsetX > progressWidth) {
+          offsetX = progressWidth
+        }
+        this.setProWidth(offsetX)
+      }
+      document.onmouseup = u_e => {
+        this.audio.play()
+        document.onmousemove = null
+        document.onmouseup = null
+        setTimeout(() => {
+          this.allowProClick = true
+        }, 200)
+      }
+    }
+  }
 })
 </script>
 
@@ -129,7 +176,7 @@ export default defineComponent({
       background-color: rgba(255, 255, 255, 0.8);
       position: relative;
       border-radius: 2px;
-      .draw {
+      .drag {
         position: absolute;
         height: 8px;
         width: 8px;
