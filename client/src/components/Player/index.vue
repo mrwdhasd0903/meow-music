@@ -17,10 +17,14 @@
       </div>
     </div>
     <div class="controller">
+      <div class="left">A</div>
       <div class="center">
         <Svg name="c_last" @click="last" />
         <Svg :name="state?'c_play':'c_stop'" @click="centerClick" />
         <Svg name="c_next" @click="next" />
+      </div>
+      <div class="right">
+        <Volume :set="setVolume"/>
       </div>
     </div>
   </div>
@@ -28,6 +32,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Volume from '@/components/Volume/index.vue'
 export default defineComponent({
   name: 'Player',
   emits: ['next', 'last'],
@@ -37,6 +42,7 @@ export default defineComponent({
       default: ''
     }
   },
+  components: { Volume },
   data() {
     return {
       // 播放总时长
@@ -87,6 +93,10 @@ export default defineComponent({
       this.$emit('last')
       this.audio.pause()
     },
+    // 修改音量
+    setVolume(v) {
+      this.audio.volume = v
+    },
     // 播放\暂停
     centerClick() {
       if (this.currSrc) {
@@ -130,12 +140,14 @@ export default defineComponent({
   },
   mounted() {
     this.drag.onmousedown = e => {
+      const state = this.state
       this.audio.pause()
       this.allowProClick = false
       // 总进度长度
       const progressWidth = this.$refs.progress.clientWidth
       // 当前进度长度
       const baseWidth = progressWidth * this.progress
+      // 当前播放状态
       document.onmousemove = m_e => {
         // 调整后的进度长度
         let offsetX = baseWidth + m_e.pageX - e.pageX
@@ -148,7 +160,10 @@ export default defineComponent({
         this.setProWidth(offsetX)
       }
       document.onmouseup = u_e => {
-        this.audio.play()
+        // 复原状态
+        if (state) {
+          this.audio.play()
+        }
         document.onmousemove = null
         document.onmouseup = null
         setTimeout(() => {
@@ -182,15 +197,18 @@ export default defineComponent({
         width: 8px;
         border-radius: 4px;
         background-color: #fff;
-        right: 0;
         top: -2px;
         right: -4px;
+        box-shadow: -2px 0px 12px 2px rgba(0, 0, 0, 0.5);
+        &:hover {
+          background-color: $color2;
+        }
       }
     }
   }
   .controller {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     .center {
       width: 170px;
       display: flex;
