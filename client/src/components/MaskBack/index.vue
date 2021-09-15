@@ -21,7 +21,7 @@ export default defineComponent({
   z-index: 2;
 }
 .back {
-  background-image: url('//cdnmusic.migu.cn/picture/2019/1125/1028/AS001cc6d843be4301b73ae817ed07b8a4.jpg');
+  background-image: url('@/image/index_background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 50%;

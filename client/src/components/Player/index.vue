@@ -17,7 +17,7 @@
       </div>
     </div>
     <div class="controller">
-      <div class="left">A</div>
+      <div class="left"></div>
       <div class="center">
         <Svg name="c_last" @click="last" />
         <Svg :name="state?'c_play':'c_stop'" @click="centerClick" />
