@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref, computed, watch } from 'vue'
-import { getDir, getFile } from '@/api/muisc'
+import { getDir, getFile } from '@/api/music'
 import Trees from '@/components/Trees/index.vue'
 import MaskBack from '@/components/MaskBack/index.vue'
 import PlayList from '@/components/PlayList/index.vue'
