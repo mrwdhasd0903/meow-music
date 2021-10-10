@@ -17,14 +17,16 @@
       </div>
     </div>
     <div class="controller">
-      <div class="left">A</div>
+      <div class="left">
+        <PlayMode @modeChange="$emit('modeChange',$event)" />
+      </div>
       <div class="center">
         <Svg name="c_last" @click="last" />
         <Svg :name="state?'c_play':'c_stop'" @click="centerClick" />
         <Svg name="c_next" @click="next" />
       </div>
       <div class="right">
-        <Volume :set="setVolume"/>
+        <Volume :set="setVolume" />
       </div>
     </div>
   </div>
@@ -33,16 +35,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Volume from '@/components/Volume/index.vue'
+import PlayMode from '@/components/PlayMode/index.vue'
 export default defineComponent({
   name: 'Player',
-  emits: ['next', 'last'],
+  emits: ['next', 'last', 'modeChange'],
   props: {
     currSrc: {
       type: String,
       default: ''
     }
   },
-  components: { Volume },
+  components: { Volume, PlayMode },
   data() {
     return {
       // 播放总时长
@@ -128,6 +131,13 @@ export default defineComponent({
       const pro = width / this.$refs.progress.clientWidth
       const _currDuration = pro * this.duration
       this.audio.currentTime = _currDuration
+    },
+    // 暴露给父组件重置进度
+    resetProgress() {
+      this.audio.currentTime = 0
+      setTimeout(() => {
+        this.audio.play()
+      }, 100)
     },
     // 播放事件
     playEvent() {

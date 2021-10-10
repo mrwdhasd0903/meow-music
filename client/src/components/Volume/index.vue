@@ -1,14 +1,12 @@
 <template>
-  <div class="Volume">
+  <div class="Volume" ref="el">
     <div class="volume_warp">
       <div class="volume_setting">
-        <div class="vol_progress" @click="progressClick">
-          <div class="vol_pointer" @click.stop="pointerClick" :style="{height:currVol+'%'}">
-            <div class="drag" @click.stop />
-          </div>
-        </div>
+        <div class="vol_slot" @click.stop="slotClick"></div>
+        <div class="vol_progress" :style="{height:value+'%'}"></div>
+        <div class="vol_slider" ref="slider" :style="{bottom:value+'%'}"></div>
       </div>
-      <Svg name="volume" @click="svgClick" />
+      <Svg :name="svgName" class="vol_svg" @click="svgClick" />
     </div>
   </div>
 </template>
@@ -20,8 +18,8 @@ export default defineComponent({
   components: {},
   data() {
     return {
-      currVol: 80,
-      chacheVol: 80
+      value: 80,
+      cacheValue: 0
     }
   },
   props: {
@@ -31,34 +29,61 @@ export default defineComponent({
     }
   },
   computed: {
-    currProgress() {
-      return this.currVol / 100
-    }
-  },
-  watch: {
-    currVol(value) {
-      this.set(value / 100)
-    }
-  },
-  methods: {
-    // 进度点击
-    progressClick(e) {
-      this.currVol = ((80 - e.offsetY) / 80) * 100
+    el() {
+      return this.$refs.el
     },
-    // 进度点击 - 子集部分
-    pointerClick(e) {
-      this.currVol = ((80 * this.currProgress - e.offsetY) / 80) * 100
-    },
-    svgClick() {
-      if (this.currVol) {
-        this.chacheVol = this.currVol
-        this.currVol = 0
+    svgName() {
+      if (this.value > 40) {
+        return 'vol_10'
+      } else if (this.value > 0) {
+        return 'vol_5'
       } else {
-        this.currVol = this.chacheVol || 80
+        return 'vol_0'
       }
     }
   },
-  mounted() {}
+  watch: {},
+  methods: {
+    //进度条槽位点击
+    slotClick(event) {
+      this.setValue(80 - event.offsetY)
+    },
+    //音量图标点击 - 切换
+    svgClick() {
+      if (this.value) {
+        this.cacheValue = this.value
+        this.setValue(0)
+      } else {
+        if (this.cacheValue == 0) {
+          this.cacheValue = 80
+        }
+        this.setValue(this.cacheValue)
+      }
+    },
+    //
+    setValue(value) {
+      if (value < 0) {
+        this.value = 0
+      } else if (value > 80) {
+        this.value = 80
+      } else {
+        this.value = value
+      }
+      this.set(this.value / 80)
+    }
+  },
+  mounted() {
+    this.$refs.slider.onmousedown = e => {
+      document.onmousemove = m_e => {
+        const a = m_e.pageY - (this.el.offsetTop - 80)
+        this.setValue(80 - a)
+      }
+      document.onmouseup = u_e => {
+        document.onmousemove = null
+        document.onmouseup = null
+      }
+    }
+  }
 })
 </script>
 
@@ -70,7 +95,7 @@ export default defineComponent({
     height: 50px;
     padding-top: 20px;
     :deep(.svg_icon) {
-      &.svg_icon_volume {
+      &.vol_svg {
         font-size: 25px;
       }
     }
@@ -95,34 +120,38 @@ export default defineComponent({
     transition: all 0.2s ease;
   }
 
-  .vol_progress {
+  .vol_slot {
     height: 80%;
     width: 5px;
     background-color: rgba(255, 255, 255, 0.4);
-    margin: 10px auto;
     border-radius: 4px;
     display: flex;
     align-items: flex-end;
     cursor: pointer;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
   }
-  .vol_pointer {
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    position: relative;
+  .vol_progress {
+    width: 5px;
     border-radius: 4px;
-    .drag {
-      position: absolute;
-      height: 9px;
-      width: 9px;
-      border-radius: 4px;
-      background-color: #fff;
-      top: -5px;
-      left: -2px;
-      box-shadow: 0px 2px 12px 2px rgba(0, 0, 0, 0.5);
-      &:hover {
-        background-color: $color2;
-      }
-    }
+    background-color: rgba(255, 255, 255, 0.8);
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 2;
+  }
+  .vol_slider {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    position: absolute;
+    left: 8px;
+    background-color: #fff;
+    transform: translateY(-6px);
+    z-index: 4;
+    cursor: pointer;
   }
 }
 </style>

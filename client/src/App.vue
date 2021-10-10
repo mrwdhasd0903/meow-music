@@ -3,14 +3,27 @@
     <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel">
       <PlayList @play="playInex" :list="state.playList" :playIndex="currPlay" />
-      <Player :currSrc="state.currSrc" @next="next" @last="last" />
+      <Player
+        ref="player"
+        @modeChange="modeChange"
+        :currSrc="state.currSrc"
+        @next="next"
+        @last="last"
+      />
     </div>
   </div>
   <MaskBack />
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, computed, watch } from 'vue'
+import {
+  defineComponent,
+  reactive,
+  ref,
+  computed,
+  watch,
+  getCurrentInstance
+} from 'vue'
 import { getDir, getFile } from '@/api/muisc'
 import Trees from '@/components/Trees/index.vue'
 import MaskBack from '@/components/MaskBack/index.vue'
@@ -20,6 +33,7 @@ export default defineComponent({
   name: 'App',
   components: { Trees, MaskBack, PlayList, Player },
   setup() {
+    const { proxy } = getCurrentInstance()
     // 状态存储
     const state = reactive({
       dirData: {},
@@ -29,6 +43,8 @@ export default defineComponent({
     })
     // 当前播放索引
     const currPlay = ref(-1)
+    // 播放模式
+    const playMode = ref('')
     // 用于中断请求
     let controller = null
     // 是否加载中
@@ -50,14 +66,13 @@ export default defineComponent({
           isPending = true
           controller = new AbortController()
           // 缓存没有就请求
-          getFile(path, controller)
-            .then(src => {
-              if (!src) return
-              isPending = false
-              state.currSrc = src
-              // 放在缓存
-              state.cacheMap[path] = src
-            })
+          getFile(path, controller).then(src => {
+            if (!src) return
+            isPending = false
+            state.currSrc = src
+            // 放在缓存
+            state.cacheMap[path] = src
+          })
         }
       }
     })
@@ -112,10 +127,20 @@ export default defineComponent({
     }
     // 下一首
     function next() {
-      currPlay.value++
-      // 超出重置为0
-      if (currPlay.value >= state.playList.length) {
-        currPlay.value = 0
+      //播放策略
+      switch (playMode.value) {
+        case 'DEFAULT':
+          currPlay.value++
+          // 超出重置为0
+          if (currPlay.value >= state.playList.length) {
+            currPlay.value = 0
+          }
+          break
+        case 'RANDOM':
+          currPlay.value = rd(0, state.playList.length - 1, currPlay.value)
+          break
+        case 'SINGLE':
+          proxy.$refs.player.resetProgress()
       }
     }
     // 上一首
@@ -124,6 +149,31 @@ export default defineComponent({
       // 最小为0
       if (currPlay.value < 0) {
         currPlay.value = 0
+      }
+    }
+    function modeChange(mode) {
+      playMode.value = mode
+    }
+    /**
+     * 两数之间随机数
+     * n:起始
+     * m:结束
+     * exclude:排除
+     */
+    function rd(n, m, exclude) {
+      if (n >= m) return m
+      const c = m - n + 1
+      let count
+      while (true) {
+        const res = Math.round(Math.random() * c + n)
+        count++
+        if (res !== exclude) {
+          return res
+        }
+        // 防止死循环
+        if (count > 50) {
+          throw '随机数出错'
+        }
       }
     }
     getDir().then(({ data }) => {
@@ -136,7 +186,8 @@ export default defineComponent({
       next,
       last,
       currPlay,
-      playInex
+      playInex,
+      modeChange
     }
   }
 })
