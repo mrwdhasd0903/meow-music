@@ -49,7 +49,7 @@ export default defineComponent({
 
 <style scoped lang='scss'>
 .list_warp {
-  height: 700px;
+  height: 750px;
   overflow: auto;
 }
 .list_item {

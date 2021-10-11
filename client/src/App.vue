@@ -16,15 +16,8 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  reactive,
-  ref,
-  computed,
-  watch,
-  getCurrentInstance
-} from 'vue'
-import { getDir, getFile } from '@/api/muisc'
+import { defineComponent, reactive, ref, watch, getCurrentInstance } from 'vue'
+import { getDir, getFile } from '@/api/music'
 import Trees from '@/components/Trees/index.vue'
 import MaskBack from '@/components/MaskBack/index.vue'
 import PlayList from '@/components/PlayList/index.vue'
@@ -41,6 +34,8 @@ export default defineComponent({
       cacheMap: {},
       currSrc: ''
     })
+    // 播放索引记录
+    const record = reactive([])
     // 当前播放索引
     const currPlay = ref(-1)
     // 播放模式
@@ -137,18 +132,37 @@ export default defineComponent({
           }
           break
         case 'RANDOM':
+          // 为了方便维护索引,所以不推索引,直接推path
+          record.push(state.playList[currPlay.value])
           currPlay.value = rd(0, state.playList.length - 1, currPlay.value)
           break
         case 'SINGLE':
           proxy.$refs.player.resetProgress()
+          break
       }
     }
     // 上一首
     function last() {
-      currPlay.value--
-      // 最小为0
-      if (currPlay.value < 0) {
-        currPlay.value = 0
+      // 播放策略
+      switch (playMode.value) {
+        case 'DEFAULT':
+          currPlay.value--
+          // 最小为0
+          if (currPlay.value < 0) {
+            currPlay.value = 0
+            proxy.$refs.player.resetProgress()
+          }
+          break
+        case 'RANDOM':
+          if (record.length) {
+            const path = record.pop()
+            const index = state.playList.indexOf(path)
+            currPlay.value = index
+          } else proxy.$refs.player.resetProgress()
+          break
+        case 'SINGLE':
+          proxy.$refs.player.resetProgress()
+          break
       }
     }
     function modeChange(mode) {
