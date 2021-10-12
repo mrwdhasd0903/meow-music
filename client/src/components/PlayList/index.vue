@@ -7,7 +7,10 @@
       :class="{curr:index === playIndex}"
     >
       <span class="index">{{index+1}}</span>
-      <Svg name="play" @click="play(index)" />
+      <Svg
+        :name="(index === playIndex) && playState==1 ?'stop':'play'"
+        @click="play(index,index === playIndex)"
+      />
       <span class="name">{{formatter(url)}}</span>
     </div>
   </div>
@@ -25,6 +28,10 @@ export default defineComponent({
     playIndex: {
       type: Number,
       default: -1
+    },
+    playState: {
+      type: Number,
+      default: 0
     }
   },
   components: {},
@@ -39,11 +46,16 @@ export default defineComponent({
       names.pop()
       return names.join('.')
     },
-    play(index) {
-      this.$emit('play', index)
+    play(index, isPlay) {
+      if (isPlay) {
+        this.$emit('pause')
+      } else {
+        this.$emit('play', index)
+      }
     }
   },
-  mounted() {}
+  mounted() {},
+  emits: ['pause', 'play']
 })
 </script>
 
@@ -69,9 +81,15 @@ export default defineComponent({
   }
   &.curr {
     color: $color2;
+    :deep(.svg_icon_stop) {
+      fill: $color2;
+      margin-right: 27px;
+      margin-left: -3px;
+      font-size: 20px;
+      cursor: pointer;
+    }
     :deep(.svg_icon_play) {
       fill: $color2;
-      cursor: default;
     }
   }
   &:hover {

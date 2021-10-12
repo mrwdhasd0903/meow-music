@@ -38,7 +38,7 @@ import Volume from '@/components/Volume/index.vue'
 import PlayMode from '@/components/PlayMode/index.vue'
 export default defineComponent({
   name: 'Player',
-  emits: ['next', 'last', 'modeChange'],
+  emits: ['next', 'last', 'modeChange', 'stateChange'],
   props: {
     currSrc: {
       type: String,
@@ -142,10 +142,12 @@ export default defineComponent({
     // 播放事件
     playEvent() {
       this.state = 1
+      this.$emit('stateChange', 1)
     },
     // 暂停事件
     pauseEvent() {
       this.state = 0
+      this.$emit('stateChange', 0)
     }
   },
   mounted() {

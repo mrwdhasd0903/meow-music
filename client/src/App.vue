@@ -2,10 +2,11 @@
   <div class="player">
     <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel">
-      <PlayList @play="playInex" :list="state.playList" :playIndex="currPlay" />
+      <PlayList @play="playInex" @pause="pause" :list="state.playList" :playIndex="currPlay" :playState="playState" />
       <Player
         ref="player"
         @modeChange="modeChange"
+        @stateChange="stateChange"
         :currSrc="state.currSrc"
         @next="next"
         @last="last"
@@ -34,6 +35,8 @@ export default defineComponent({
       cacheMap: {},
       currSrc: ''
     })
+    // 播放状态 1 播放 0 暂停
+    const playState = ref(0)
     // 播放索引记录
     const record = reactive([])
     // 当前播放索引
@@ -165,8 +168,15 @@ export default defineComponent({
           break
       }
     }
+    // 播放暂停
+    function pause(){
+      proxy.$refs.player.centerClick()
+    }
     function modeChange(mode) {
       playMode.value = mode
+    }
+    function stateChange(state){
+      playState.value = state
     }
     /**
      * 两数之间随机数
@@ -199,9 +209,12 @@ export default defineComponent({
       addDirToPlayer,
       next,
       last,
+      pause,
       currPlay,
       playInex,
-      modeChange
+      modeChange,
+      stateChange,
+      playState
     }
   }
 })
