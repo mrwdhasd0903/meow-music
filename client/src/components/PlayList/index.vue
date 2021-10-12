@@ -6,6 +6,7 @@
       class="list_item"
       :class="{curr:index === playIndex}"
     >
+      <span class="box" :class="{select:selectList[index]}" @click="select(index)" />
       <span class="index">{{index+1}}</span>
       <Svg
         :name="(index === playIndex) && playState==1 ?'stop':'play'"
@@ -36,10 +37,20 @@ export default defineComponent({
   },
   components: {},
   data() {
-    return {}
+    return {
+      selectList: []
+    }
   },
   computed: {},
   methods: {
+    select(index) {
+      const isSelect = this.selectList[index]
+      if (isSelect) {
+        this.selectList[index] = 0
+      } else {
+        this.selectList[index] = 1
+      }
+    },
     formatter(path) {
       const arrs = path.split('/')
       const names = arrs[arrs.length - 1].split('.')
@@ -66,10 +77,40 @@ export default defineComponent({
 }
 .list_item {
   height: 50px;
-  line-height: 50px;
   cursor: default;
   padding: 0 30px;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  .box {
+    width: 15px;
+    height: 15px;
+    border: 2px solid $color1;
+    border-radius: 2px;
+    margin-right: 30px;
+    display: inline-block;
+    opacity: 0.5;
+    cursor: pointer;
+    position: relative;
+    transition: opacity .2s ease;
+    &:hover {
+      opacity: 1;
+    }
+    &.select::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 8px;
+      height: 15px;
+      border: 3px solid $color1;
+      border-top: 0;
+      border-left: 0;
+      top: -8px;
+      left: 1px;
+      transform: rotate(40deg);
+      border-radius: 0 0 4px 0 ;
+    }
+  }
   :deep(.svg_icon_play) {
     fill: $color1;
     margin-right: 30px;
