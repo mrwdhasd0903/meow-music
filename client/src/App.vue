@@ -2,7 +2,14 @@
   <div class="player">
     <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel">
-      <PlayList @play="playInex" @pause="pause" :list="state.playList" :playIndex="currPlay" :playState="playState" />
+      <PlayList
+        @play="playInex"
+        @pause="pause"
+        @delete="del"
+        :list="state.playList"
+        :playIndex="currPlay"
+        :playState="playState"
+      />
       <Player
         ref="player"
         @modeChange="modeChange"
@@ -169,13 +176,26 @@ export default defineComponent({
       }
     }
     // 播放暂停
-    function pause(){
+    function pause() {
       proxy.$refs.player.centerClick()
+    }
+    // 删除
+    function del(indexArr) {
+      // 记录当前的path
+      const path = state.playList[currPlay.value]
+      const list = [...state.playList]
+      indexArr.forEach(index => {
+        list[index] = null
+      })
+      state.playList = list.filter(i => i)
+      // 恢复index
+      const index = state.playList.indexOf(path)
+      currPlay.value = index
     }
     function modeChange(mode) {
       playMode.value = mode
     }
-    function stateChange(state){
+    function stateChange(state) {
       playState.value = state
     }
     /**
@@ -214,7 +234,8 @@ export default defineComponent({
       playInex,
       modeChange,
       stateChange,
-      playState
+      playState,
+      del
     }
   }
 })

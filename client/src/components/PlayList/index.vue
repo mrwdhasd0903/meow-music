@@ -1,18 +1,27 @@
 <template>
-  <div class="list_warp">
-    <div
-      v-for="(url,index) in list"
-      :key="url"
-      class="list_item"
-      :class="{curr:index === playIndex}"
-    >
-      <span class="box" :class="{select:selectList[index]}" @click="select(index)" />
-      <span class="index">{{index+1}}</span>
-      <Svg
-        :name="(index === playIndex) && playState==1 ?'stop':'play'"
-        @click="play(index,index === playIndex)"
-      />
-      <span class="name">{{formatter(url)}}</span>
+  <div class="PlayList">
+    <div class="list_header">
+      <span class="box" :class="'select_'+selectState" @click="headerBoxClick" />
+      {{selectState}}
+    </div>
+    <div class="list_warp">
+      <div
+        v-for="(url,index) in list"
+        :key="url"
+        class="list_item"
+        :class="{curr:index === playIndex}"
+      >
+        <span class="box" :class="{select:selectList[index]}" @click="select(index)" />
+        <span class="index">{{index+1}}</span>
+        <Svg
+          :name="(index === playIndex) && playState==1 ?'stop':'play'"
+          @click="play(index,index === playIndex)"
+        />
+        <span class="name">{{formatter(url)}}</span>
+        <div class="other">
+          <Svg name="del" @click="del(index)" v-show="index !== playIndex" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -41,8 +50,17 @@ export default defineComponent({
       selectList: []
     }
   },
-  computed: {},
+  computed: {
+    // 全选状态:  0-都没选 1-选了部分 2-全选
+    selectState() {
+      const selects = this.selectList.filter(i => i)
+      if (selects.length === 0) return 0
+      if (selects.length === this.list.length) return 2
+      return 1
+    }
+  },
   methods: {
+    // 单个选择
     select(index) {
       const isSelect = this.selectList[index]
       if (isSelect) {
@@ -51,11 +69,34 @@ export default defineComponent({
         this.selectList[index] = 1
       }
     },
+    // 全选点击
+    headerBoxClick() {
+      switch (this.selectState) {
+        case 0:
+          // 0 转 2
+          this.list.forEach((_, i) => {
+            this.selectList[i] = 1
+          })
+          break
+        case 1:
+        // 1 转 0
+        case 2:
+          // 2 转 0
+          this.selectList = []
+          break
+      }
+    },
     formatter(path) {
       const arrs = path.split('/')
       const names = arrs[arrs.length - 1].split('.')
       names.pop()
       return names.join('.')
+    },
+    /**
+     * 删除1个
+     */
+    del(index) {
+      this.$emit('delete', [index])
     },
     play(index, isPlay) {
       if (isPlay) {
@@ -66,14 +107,70 @@ export default defineComponent({
     }
   },
   mounted() {},
-  emits: ['pause', 'play']
+  emits: ['pause', 'play', 'delete']
 })
 </script>
 
 <style scoped lang='scss'>
+.list_header {
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  .box {
+    &.select_1::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      top: 2px;
+      left: 2px;
+      border-radius: 1px;
+      background-color: $color1;
+    }
+  }
+}
 .list_warp {
   height: 750px;
   overflow: auto;
+  .name {
+    width: 500px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.box {
+  width: 15px;
+  height: 15px;
+  border: 2px solid $color1;
+  border-radius: 2px;
+  margin-right: 30px;
+  display: inline-block;
+  opacity: 0.5;
+  cursor: pointer;
+  position: relative;
+  transition: opacity 0.2s ease;
+  &:hover {
+    opacity: 1;
+  }
+  &.select_2::before,
+  &.select::before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 8px;
+    height: 15px;
+    border: 3px solid $color1;
+    border-top: 0;
+    border-left: 0;
+    top: -8px;
+    left: 1px;
+    transform: rotate(40deg);
+    border-radius: 0 0 4px 0;
+  }
 }
 .list_item {
   height: 50px;
@@ -82,35 +179,6 @@ export default defineComponent({
   border-radius: 4px;
   display: flex;
   align-items: center;
-  .box {
-    width: 15px;
-    height: 15px;
-    border: 2px solid $color1;
-    border-radius: 2px;
-    margin-right: 30px;
-    display: inline-block;
-    opacity: 0.5;
-    cursor: pointer;
-    position: relative;
-    transition: opacity .2s ease;
-    &:hover {
-      opacity: 1;
-    }
-    &.select::before {
-      content: '';
-      display: block;
-      position: absolute;
-      width: 8px;
-      height: 15px;
-      border: 3px solid $color1;
-      border-top: 0;
-      border-left: 0;
-      top: -8px;
-      left: 1px;
-      transform: rotate(40deg);
-      border-radius: 0 0 4px 0 ;
-    }
-  }
   :deep(.svg_icon_play) {
     fill: $color1;
     margin-right: 30px;
@@ -135,10 +203,30 @@ export default defineComponent({
   }
   &:hover {
     background-color: rgba(200, 200, 200, 0.1);
+    .other {
+      .svg_icon_del {
+        opacity: 0.4;
+      }
+    }
   }
   .index {
     display: inline-block;
     width: 50px;
+  }
+  .other {
+    display: flex;
+    justify-content: flex-end;
+    width: calc(100% - 639px);
+    .svg_icon_del {
+      fill: $color1;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      &:hover {
+        opacity: 1;
+      }
+    }
   }
 }
 </style>
