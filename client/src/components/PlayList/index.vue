@@ -25,6 +25,10 @@
           <Svg name="del" @click="del(index)" v-show="index !== playIndex" />
         </div>
       </div>
+      <div class="empty" v-show="!list.length">
+        <Svg name="note_logo" />
+        <p>空空如也，快去左侧添加歌曲吧 ~</p>
+      </div>
     </div>
   </div>
 </template>
@@ -269,6 +273,20 @@ export default defineComponent({
         opacity: 1;
       }
     }
+  }
+}
+.empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  opacity: 0.5;
+  user-select: none;
+  .svg_icon_note_logo {
+    font-size: 90px;
+    fill: $color1;
   }
 }
 </style>
