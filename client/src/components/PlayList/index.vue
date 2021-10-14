@@ -2,7 +2,10 @@
   <div class="PlayList">
     <div class="list_header">
       <span class="box" :class="'select_'+selectState" @click="headerBoxClick" />
-      {{selectState}}
+      <div class="other">
+        <div class="del_select" @click="delSelect" v-show="selectState">清空已选</div>
+        <div class="del_all" @click="delAll">清空列表</div>
+      </div>
     </div>
     <div class="list_warp">
       <div
@@ -98,6 +101,24 @@ export default defineComponent({
     del(index) {
       this.$emit('delete', [index])
     },
+    // 清空列表
+    delAll() {
+      this.$emit(
+        'delete',
+        this.list.map((_, index) => index)
+      )
+    },
+    // 清空选择
+    delSelect() {
+      const arrIndex = []
+      this.selectList.forEach((value, index) => {
+        if (value) {
+          arrIndex.push(index)
+        }
+      })
+      this.selectList = []
+      this.$emit('delete', arrIndex)
+    },
     play(index, isPlay) {
       if (isPlay) {
         this.$emit('pause')
@@ -118,6 +139,7 @@ export default defineComponent({
   padding: 0 30px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   .box {
     &.select_1::before {
       content: '';
@@ -130,6 +152,26 @@ export default defineComponent({
       border-radius: 1px;
       background-color: $color1;
     }
+  }
+  .del_select,
+  .del_all {
+    padding: 4px 10px;
+    border: 1px $color1 solid;
+    color: $color1;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    margin-left: 10px;
+    opacity: 0.6;
+    &:hover {
+      opacity: 1;
+      border-color: $color2;
+      color: $color2;
+    }
+  }
+  .other {
+    display: flex;
+    justify-content: flex-end;
   }
 }
 .list_warp {

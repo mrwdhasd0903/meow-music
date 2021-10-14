@@ -1,7 +1,5 @@
 <template>
   {{record}}
-  <br/>
-  {{currPlay}}
   <div class="player">
     <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel">
@@ -146,8 +144,10 @@ export default defineComponent({
           break
         case 'RANDOM':
           // 为了方便维护索引,所以不推索引,直接推path
-          record.push(state.playList[currPlay.value])
-          
+          if (state.playList[currPlay.value]) {
+            record.push(state.playList[currPlay.value])
+          }
+
           currPlay.value = rd(0, state.playList.length - 1, currPlay.value)
           break
         case 'SINGLE':
@@ -223,7 +223,7 @@ export default defineComponent({
       while (true) {
         const res = Math.round(Math.random() * c + n)
         count++
-        
+
         if (res !== exclude) {
           return res
         }
