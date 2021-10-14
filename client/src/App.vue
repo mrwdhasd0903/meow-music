@@ -1,4 +1,7 @@
 <template>
+  {{record}}
+  <br/>
+  {{currPlay}}
   <div class="player">
     <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel">
@@ -144,6 +147,7 @@ export default defineComponent({
         case 'RANDOM':
           // 为了方便维护索引,所以不推索引,直接推path
           record.push(state.playList[currPlay.value])
+          
           currPlay.value = rd(0, state.playList.length - 1, currPlay.value)
           break
         case 'SINGLE':
@@ -185,6 +189,14 @@ export default defineComponent({
       const path = state.playList[currPlay.value]
       const list = [...state.playList]
       indexArr.forEach(index => {
+        // 删除历史记录
+        const delPath = list[index]
+        const delIndexArr = findAllIndex(record, delPath)
+
+        delIndexArr.forEach(delIndex => {
+          record.splice(delIndex, 1)
+        })
+
         list[index] = null
       })
       state.playList = list.filter(i => i)
@@ -206,11 +218,12 @@ export default defineComponent({
      */
     function rd(n, m, exclude) {
       if (n >= m) return m
-      const c = m - n + 1
+      const c = m - n
       let count
       while (true) {
         const res = Math.round(Math.random() * c + n)
         count++
+        
         if (res !== exclude) {
           return res
         }
@@ -220,6 +233,16 @@ export default defineComponent({
         }
       }
     }
+    function findAllIndex(arr, value) {
+      const indexArr = []
+      for (let i = arr.length - 1; i >= 0; i--) {
+        if (arr[i] === value) {
+          indexArr.push(i)
+        }
+      }
+      return indexArr
+    }
+
     getDir().then(({ data }) => {
       state.dirData = data
     })
@@ -235,7 +258,8 @@ export default defineComponent({
       modeChange,
       stateChange,
       playState,
-      del
+      del,
+      record
     }
   }
 })
