@@ -12,4 +12,6 @@ http.createServer((requset, response) => {
     controller[pathname](requset, response)
   }
 })
-http.run(7777,'服务启动了~')
+http.run(7777, '服务启动了~')
+// 初始化JSON文件
+controller.initDir()
