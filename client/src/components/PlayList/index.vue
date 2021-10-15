@@ -1,5 +1,5 @@
 <template>
-  <div class="PlayList">
+  <div class="PlayList" ref="self">
     <div class="list_header">
       <span class="box" :class="'select_'+selectState" @click="headerBoxClick" />
       <div class="other">
@@ -128,6 +128,18 @@ export default defineComponent({
         this.$emit('pause')
       } else {
         this.$emit('play', index)
+      }
+    },
+    // 滚动到当前播放
+    positioning() {
+      const list_warp = this.$refs.self.childNodes[1]
+      const list = list_warp.children
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].className.indexOf('curr') !== -1) {
+          const curr = list[i]
+          list_warp.scrollTop = curr.offsetTop - 90
+          return
+        }
       }
     }
   },

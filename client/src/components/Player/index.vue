@@ -13,6 +13,7 @@
     />
     <div class="info">
       <span v-show="duration">{{fmCurrDuration}}</span>
+      <span class="currPaly" @click="currPalyClick">{{currPaly}}</span>
       <span v-show="duration">{{fmDuration}}</span>
     </div>
     <div class="progress" ref="progress" @click="progressClick">
@@ -43,9 +44,13 @@ import Volume from '@/components/Volume/index.vue'
 import PlayMode from '@/components/PlayMode/index.vue'
 export default defineComponent({
   name: 'Player',
-  emits: ['next', 'last', 'modeChange', 'stateChange'],
+  emits: ['next', 'last', 'modeChange', 'stateChange', 'positioning'],
   props: {
     currSrc: {
+      type: String,
+      default: ''
+    },
+    currPaly: {
       type: String,
       default: ''
     },
@@ -127,6 +132,10 @@ export default defineComponent({
     // 修改音量
     setVolume(v) {
       this.audio.volume = v
+    },
+    // 歌名点击
+    currPalyClick() {
+      this.$emit('positioning')
     },
     // 播放\暂停
     centerClick() {
@@ -223,6 +232,12 @@ export default defineComponent({
   .info {
     display: flex;
     justify-content: space-between;
+    .currPaly {
+      cursor: pointer;
+      &:hover {
+        color: $color2;
+      }
+    }
   }
   .progress {
     width: 100%;

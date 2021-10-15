@@ -9,12 +9,15 @@
         :list="state.playList"
         :playIndex="currPlay"
         :playState="playState"
+        ref="playList"
       />
       <Player
         ref="player"
         @modeChange="modeChange"
         @stateChange="stateChange"
+        @positioning="positioning"
         :currSrc="state.currSrc"
+        :currPaly="state.playList[currPlay]"
         :isPending="isPending"
         @next="next"
         @last="last"
@@ -211,6 +214,12 @@ export default defineComponent({
       playState.value = state
     }
     /**
+     * 定位到当前播放
+     */
+    function positioning() {
+      proxy.$refs.playList.positioning()
+    }
+    /**
      * 两数之间随机数
      * n:起始
      * m:结束
@@ -250,6 +259,7 @@ export default defineComponent({
       state,
       addToPalyer,
       addDirToPlayer,
+      positioning,
       next,
       last,
       pause,
