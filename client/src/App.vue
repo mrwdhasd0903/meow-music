@@ -1,5 +1,4 @@
 <template>
-  {{record}}
   <div class="player">
     <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel">
@@ -16,6 +15,7 @@
         @modeChange="modeChange"
         @stateChange="stateChange"
         :currSrc="state.currSrc"
+        :isPending="isPending"
         @next="next"
         @last="last"
       />
@@ -54,7 +54,7 @@ export default defineComponent({
     // 用于中断请求
     let controller = null
     // 是否加载中
-    let isPending = false
+    const isPending = ref(false)
     // 索引改变时
     watch(currPlay, () => {
       // 拿取path
@@ -63,18 +63,18 @@ export default defineComponent({
         // 从缓存拿
         const src = state.cacheMap[path]
         // 如果还在请求中,就结束掉
-        if (isPending) {
+        if (isPending.value) {
           controller.abort()
         }
         if (src) {
           state.currSrc = src
         } else {
-          isPending = true
+          isPending.value = true
           controller = new AbortController()
           // 缓存没有就请求
           getFile(path, controller).then(src => {
             if (!src) return
-            isPending = false
+            isPending.value = false
             state.currSrc = src
             // 放在缓存
             state.cacheMap[path] = src
@@ -259,7 +259,8 @@ export default defineComponent({
       stateChange,
       playState,
       del,
-      record
+      record,
+      isPending
     }
   }
 })

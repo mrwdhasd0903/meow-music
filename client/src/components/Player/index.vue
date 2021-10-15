@@ -11,6 +11,10 @@
       autoplay
       ref="audio"
     />
+    <div class="info">
+      <span v-show="duration">{{fmCurrDuration}}</span>
+      <span v-show="duration">{{fmDuration}}</span>
+    </div>
     <div class="progress" ref="progress" @click="progressClick">
       <div class="pointer" :style="{width:progressWidth}">
         <div class="drag" ref="drag"></div>
@@ -22,7 +26,8 @@
       </div>
       <div class="center">
         <Svg name="c_last" @click="last" />
-        <Svg :name="state?'c_play':'c_stop'" @click="centerClick" />
+        <Svg v-if="isPending" name="note_logo" @click="centerClick" />
+        <Svg v-else :name="state?'c_play':'c_stop'" @click="centerClick" />
         <Svg name="c_next" @click="next" />
       </div>
       <div class="right">
@@ -43,6 +48,10 @@ export default defineComponent({
     currSrc: {
       type: String,
       default: ''
+    },
+    isPending: {
+      type: Boolean,
+      default: false
     }
   },
   components: { Volume, PlayMode },
@@ -69,6 +78,25 @@ export default defineComponent({
     }
   },
   computed: {
+    // 播放总时长 : 分秒
+    fmDuration() {
+      const int = parseInt(this.duration)
+      let mm = parseInt(int / 60)
+      let ss = int % 60
+      let pr1 = mm < 10 ? '0' : ''
+      let pr2 = ss < 10 ? '0' : ''
+      return pr1 + mm + ':' + pr2 + ss
+    },
+    // 当前已播放时长 : 分秒
+    fmCurrDuration() {
+      const int = parseInt(this.currDuration)
+      let mm = parseInt(int / 60)
+      let ss = int % 60
+      let pr1 = mm < 10 ? '0' : ''
+      let pr2 = ss < 10 ? '0' : ''
+      return pr1 + mm + ':' + pr2 + ss
+    },
+
     // 进度条宽度
     progressWidth() {
       return this.progress * 100 + '%'
@@ -192,6 +220,10 @@ export default defineComponent({
   .audio {
     display: none;
   }
+  .info {
+    display: flex;
+    justify-content: space-between;
+  }
   .progress {
     width: 100%;
     height: 4px;
@@ -226,6 +258,27 @@ export default defineComponent({
       display: flex;
       justify-content: space-between;
       padding-top: 20px;
+    }
+    .svg_icon_note_logo {
+      animation: rotating 3s linear infinite;
+      cursor: default !important;
+      &:hover {
+        fill: $color1 !important;
+      }
+    }
+    @keyframes rotating {
+      0% {
+        opacity: 0.5;
+        transform: rotate(0);
+      }
+      50% {
+        opacity: 0.8;
+        transform: rotate(180deg);
+      }
+      100% {
+        opacity: 0.5;
+        transform: rotate(360deg);
+      }
     }
     :deep() {
       .svg_icon {
