@@ -5,4 +5,4 @@ module.exports.resHeaders = {
   "Access-Control-Allow-Methods": "DELETE,PUT,POST,GET,OPTIONS",
 }
 
-module.exports.musicBasePath = `E:/ljj/`
+module.exports.musicBasePath = `D:/WeGameApps/QQ飞车/Sounds/`

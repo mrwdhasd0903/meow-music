@@ -9,7 +9,10 @@ http.createServer((requset, response) => {
   filter(requset, response)
   if (requset.do) {
     const { pathname } = requset.parseUrl
-    controller[pathname](requset, response)
+    const fn = controller[pathname]
+    if(fn){
+    	  fn(requset, response)
+    }
   }
 })
 http.run(7777, '服务启动了~')

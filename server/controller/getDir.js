@@ -3,7 +3,6 @@ const { musicBasePath } = require("../config")
 const MIN_SIZE = 1024 * 1024;
 // 具有目录结构的对象,用于存放返回的数据
 const dirContainer = {};
-const jsonPath = "./config/dir.json"
 /**
  * 递归目录
  * @param {绝对路径} fullPath 
@@ -68,5 +67,6 @@ module.exports = {
   "/getDir": (requset, response) => {
     response.sendJSON(process.dirData);
   },
+  "/initDir":initDir,
   initDir
 }
