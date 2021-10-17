@@ -1,7 +1,8 @@
 <template>
-  <div class="player">
-    <Trees :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
-    <div class="player_panel">
+  <div class="Main">
+    <Trees :full="isHideLeft" :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
+    <div class="player_panel" :class="{hide:isHideLeft}">
+      <div class="popup_ctrl" @click="popupClick"></div>
       <PlayList
         @play="playInex"
         @pause="pause"
@@ -46,6 +47,8 @@ export default defineComponent({
       cacheMap: {},
       currSrc: ''
     })
+    // 控制左侧伸缩
+    const isHideLeft = ref(false)
     // 播放状态 1 播放 0 暂停
     const playState = ref(0)
     // 播放索引记录
@@ -220,6 +223,12 @@ export default defineComponent({
       proxy.$refs.playList.positioning()
     }
     /**
+     * 隐藏与显示左边面板
+     */
+    function popupClick() {
+      isHideLeft.value = !isHideLeft.value
+    }
+    /**
      * 两数之间随机数
      * n:起始
      * m:结束
@@ -269,15 +278,17 @@ export default defineComponent({
       stateChange,
       playState,
       del,
+      popupClick,
       record,
-      isPending
+      isPending,
+      isHideLeft
     }
   }
 })
 </script>
 
 <style scoped lang='scss'>
-.player {
+.Main {
   position: absolute;
   z-index: 3;
   width: 100%;
@@ -291,6 +302,28 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
+    .popup_ctrl {
+      position: absolute;
+      width: 20px;
+      height: calc(100% - 80px);
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      &:hover {
+        opacity: 1;
+      }
+    }
+    &.hide {
+      width: 0;
+      padding-right: 0;
+      .Player,
+      .PlayList {
+        display: none;
+      }
+    }
   }
 }
 </style>

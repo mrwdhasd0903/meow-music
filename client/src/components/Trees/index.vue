@@ -1,5 +1,17 @@
 <template>
-  <div class="trees">
+  <div class="Trees" :class="{full:full}">
+    <div class="search_warp">
+      <input
+        placeholder="查找歌曲..."
+        class="input"
+        type="text"
+        :value="searchValue"
+        @input="searchChange"
+      />
+      <div class="broom_btn">
+        <Svg name="broom" @click="broomClick" />
+      </div>
+    </div>
     <div class="tree_item">
       <div class="tree_heder">
         <Svg name="arrow" :class="{arrow_shrink:display}" @click.stop="shrink()" />
@@ -30,21 +42,32 @@ export default defineComponent({
     data: {
       type: Object,
       default: {}
+    },
+    full: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
-      display: true
+      display: true,
+      searchValue: ''
     }
   },
   provide() {
     return {
-      getPath: this.emit,
       add: this.add,
-      addDir: this.addDir
+      addDir: this.addDir,
+      getSearchValue: () => this.searchValue
     }
   },
   methods: {
+    broomClick() {
+      this.searchValue = ""
+    },
+    searchChange(e) {
+      this.searchValue = e.target.value
+    },
     shrink() {
       this.display = !this.display
     },
@@ -68,7 +91,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang='scss'>
-.trees {
+.Trees {
   position: relative;
   z-index: 1;
   height: calc(100vh - 100px);
@@ -77,6 +100,46 @@ export default defineComponent({
   width: 300px;
   overflow-x: hidden;
   padding: 20px 30px;
+  padding-top: 40px;
+  transition: width 0.2s ease;
+  &.full {
+    width: 100%;
+  }
+  .search_warp {
+    width: calc(100% - 50px);
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    padding-left: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+    .input {
+      width: calc(100% - 30px);
+      border: 0;
+      outline: none;
+      background-color: rgba(0, 0, 0, 0);
+      color: $color1;
+    }
+    .broom_btn {
+      width: 30px;
+      height: 100%;
+      cursor: pointer;
+      background-color: rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      fill: $color1;
+      font-size: 20px;
+      opacity: 0.6;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
   :deep(.svg_icon_add) {
     fill: $color1;
     width: 14px;

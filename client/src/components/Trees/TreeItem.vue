@@ -1,13 +1,13 @@
 <template>
   <div class="tree_item" v-for="(value, key) in data" :key="key">
-    <div class="tree_heder">
+    <div class="tree_heder" v-show="key.indexOf(getSearchValue())!==-1 || value!==true">
       <Svg
         name="arrow"
         v-if="value!==true"
         :class="{arrow_shrink:displays[key]}"
         @click.stop="shrink(key)"
       />
-      <div class="name" :title="key" @click="getPath(basePath + '/' + key,value!==true)">{{key}}</div>
+      <div class="name" :title="key">{{key}}</div>
       <div class="operation" v-if="value!==true">
         <Svg name="add" @click="addDir(basePath + '/' + key)" />
       </div>
@@ -38,7 +38,7 @@ export default defineComponent({
       default: ''
     }
   },
-  inject: ['getPath', 'add', 'addDir'],
+  inject: ['add', 'addDir', 'getSearchValue'],
   setup(props) {
     const displays = reactive({ ...props.data })
     for (let key in displays) {
