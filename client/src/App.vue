@@ -2,7 +2,9 @@
   <div class="Main">
     <Trees :full="isHideLeft" :data="state.dirData" @add="addToPalyer" @addDir="addDirToPlayer"></Trees>
     <div class="player_panel" :class="{hide:isHideLeft}">
-      <div class="popup_ctrl" @click="popupClick"></div>
+      <div class="popup_ctrl" @click="popupClick">
+        <Svg name="arrow" />
+      </div>
       <PlayList
         @play="playInex"
         @pause="pause"
@@ -315,6 +317,10 @@ export default defineComponent({
       &:hover {
         opacity: 1;
       }
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      fill: $color1;
     }
     &.hide {
       width: 0;
@@ -322,6 +328,11 @@ export default defineComponent({
       .Player,
       .PlayList {
         display: none;
+      }
+      .popup_ctrl {
+        .svg_icon_arrow {
+          transform: rotate(180deg);
+        }
       }
     }
   }
