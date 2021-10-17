@@ -1,48 +1,73 @@
-# meow-music
+## 一、前言
+
+个人比较喜欢收藏下载歌曲，然后每次播放都要打开音乐播放器，而且是属于离线播放，只能在自己电脑播放，于是想自己写个基于浏览器的播放器，部署在服务器中，然后在哪都可以播放到自己收藏的歌曲。
+
+另外，该项目代码层面纯独立完成，无参考任何播放器项目，设计排版方面参考了咪咕音乐，有考虑不周地方，敬请指教。
+
+## 二、功能
+
+如下图所示：
+
+![1634475927.jpg](https://www.wdhhh.cn/upload/io/img/2021/10/17/1634478081248.jpg)
+
+1. 左侧面板以树形列表形式按照目录结构展示所有的歌曲，并可以过滤筛选
+2. 左侧点击可将歌曲添加到右侧播放列表，并可以批量删除列表中的项目
+3. 下方展示播放信息和控件，包括播放进度、时间、当前播放歌曲（点击可定位到列表），另外可以调进度条、调节音量、调节播放模式，其中播放模式有顺序播放，随机播放和单曲循环。并有最基础的切换功能。
+
+本项目基于谷歌浏览器开发，并没有特意兼容其他浏览器，如果使用其他内核浏览器可能出现问题。
+
+## 三、项目代码
+
+项目采用前后端分离开发，共分为前端和后端两个项目。
+
+git地址：[https://github.com/mrwdhasd0903/meow-music](https://github.com/mrwdhasd0903/meow-music)
+
+### 前端
+
+1. 技术栈
+   - vue3 + vite + ts
+2. 代码比较轻量，除了必要的框架，没用其他插件和工具，就连请求库都使用js自带的fetch，并进行简单封装使用
+3. 目录结构与配置
+   - api封装放在/client/src/api目录下
+   - 页面组件放在/client/src/components目录下
+   - fetch封装放在/client/src/fetch目录下
+   - 全局css变量放在/client/src/style/global.scss文件
+   - svg文件放在/client/src/svg/目录下
+   - dev端口为2402
+     - 开发使用`npm run dev`
+     - 打包使用`npm run build`
+     - 部署使用`npm run server`，需打包后再部署
+       - 部署依赖`live-server`，请先使用npm全局安装
+
+### 后端
+
+1. 技术栈
+   - 纯node项目，无任何插件
+2. 目录结构与配置
+   - around：服务创建钩子，用于检测配置是否正确
+   - config：
+     - 可配置端口，默认2403，修改的话需同步修改前端的代理端口
+     - 可配置歌曲目录绝对路径
+   - controller：存放接口控制层逻辑
+   - filter：接口请求过滤器
+   - http：对nodejs的http模块进行简单的封装
+3. 开发与部署
+   - 开发
+     - `npm run dev`
+     - 依赖于`nodemon`
+   - 部署
+     - `npm run server`
 
 
-## 启动服务端
 
-cd server
+## 四、注意事项
 
-npm run dev
+linux下执行部署命令后关闭连接窗口会关闭node进程，可以使用以下方式进行后台挂起
 
-## 启动客户端
-
-cd client
-
-npm run dev
-
-## 配置
-
-前往 server/config 配置音乐home目录
-
-
-
-
---------------------------------
-
-
-
-## client
-
-- vite
-  - svg
-  - scss
-  - proxy
-- vue3
-  - setup/compositionAPI
-  - ts
-- fetch
-- components
-  - Player
-  - Trees
-- 缓存
-
-## server
-
-- controller
-  - getDir
-  - getFile
-- http
+```shell
+nohup npm run server &
+# 按两下回车
+# 退出时不要直接关闭窗口，用exit命令退出
+exit
+```
 
