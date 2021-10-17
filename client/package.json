@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "server": "live-server ./dist/ --port=2403 --proxy=/api/:http://127.0.0.1:2402"
+    "server": "live-server ./dist/ --port=2402 --proxy=/api/:http://127.0.0.1:2403"
   },
   "dependencies": {
     "fs": "0.0.1-security",
