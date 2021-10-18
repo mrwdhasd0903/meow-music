@@ -67,6 +67,9 @@ module.exports = {
   "/getDir": (requset, response) => {
     response.sendJSON(process.dirData);
   },
-  "/initDir":initDir,
+  "/initDir": (requset, response) => {
+    initDir();
+    response.sendJSON({msg:"ok"});
+  },
   initDir
 }
